@@ -1,4 +1,4 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import { extractArrayFromJSONString } from '@/helpers/extract';
 import { geminiPro } from '@/services/gen-ai';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -20,13 +20,15 @@ export default async function handler(
   para a plataforma '${platform}',
   abordando os seguintes tipos de assuntos: '${topics.join(', ')}'
 
-  Retorne uma array json no seguinte schema: { title: string, content: string, hashtags: string[] }. Remove o \`\`\`json no início e no final do texto e caracteres especiais.
+  Retorne uma array em formato json no seguinte schema: [{ title: string, content: string, hashtags: string[] }]. Remove o \`\`\`json no início e no final do texto e caracteres especiais.
   `;
 
   const result = await geminiPro.generateContent(prompt);
   const text = result.response.text();
 
-  // add zod to validate the response
+  console.log(text);
 
-  res.status(200).json(JSON.parse(text));
+  const data = extractArrayFromJSONString(text);
+
+  res.status(200).json(data);
 }
